@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wizardapi-database
+spec:
+  selector:
+    matchLabels:
+      app: wizardapi-database
+  template:
+    metadata:
+      labels:
+        app: wizardapi-database
+    spec:
+      containers:
+        - name: wizardapi-database
+          image: postgres
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: wizardapi-database-secret
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: wizardapi-database-data
+      volumes:
+        - name: wizardapi-database-data
+          persistentVolumeClaim:
+            claimName: wizardapi-database-pvc

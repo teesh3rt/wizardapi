@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wizardapi
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: wizardapi
+  template:
+    metadata:
+      labels:
+        app: wizardapi
+    spec:
+      containers:
+        - name: wizardapi
+          image: teesh3rt/wizardapi
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_HOST
+              value: "wizardapi-database"
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_USER
+              value: "postgres"
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wizardapi-database-secret
+                  key: password
+            - name: DATABASE_DB
+              value: "postgres"

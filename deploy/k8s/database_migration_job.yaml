@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wizardapi-database-migration
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      containers:
+        - name: migrate
+          image: teesh3rt/goose
+          args: ["up"]
+          env:
+            - name: GOOSE_DBSTRING
+              valueFrom:
+                secretKeyRef:
+                  name: wizardapi-database-secret
+                  key: goose-dbstring
+            - name: GOOSE_DRIVER
+              value: "postgres"
+          volumeMounts:
+            - name: migration-scripts
+              mountPath: /migrations
+      volumes:
+        - name: migration-scripts
+          configMap:
+            name: wizardapi-migrations
+      restartPolicy: Never
